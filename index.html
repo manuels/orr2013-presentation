@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>emscripten</title>
+
+		<link rel="stylesheet" href="reveal.js/css/reveal.min.css">
+		<link rel="stylesheet" href="reveal.js/css/theme/sky.css" id="theme">
+
+		<link rel="stylesheet" href="reveal.js/lib/css/zenburn.css"> <!-- highlight.js -->
+
+		<style>
+			.reveal section img.noshadow {
+				box-shadow: none;
+				border: 0;
+			}
+		</style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1><small>Native Programme im Browser</small></h1>
+					<h3><small>C/C++ Programme mit Emscripten nach Javascript portieren</small></h3>
+					<p>
+						<small><a href="http://github.com/manuels">Manuel Schölling</a> / <a href="mailto:manuel.schoelling@gmx.de">manuel.schoelling@gmx.de</a> - github.com/manuels</small>
+						<br />
+						<img style="border: 0" src="img/license.png" />
+					</p>
+				</section>
+
+				<section>
+					<h2>Ye good old days</h1>
+					<p>>github.com/ma
+				</section>
+
+				<section>
+					<h1>The Internets</h1>
+					<p>
+						<img style="border: 0" src="img/netscape.jpg" />
+	m				</p>
+				</section>
+
+				<section>
+					<h1>The Internets</h1>
+					<p>
+						<img height="300px" class="noshadow" src="img/html5.svg" />
+					</p>
+				</section>
+
+				<section>
+					<p>
+						<img width="700" class="noshadow" src="img/emscripten_switch_logo.svg" />
+						<h3>developed by<br /> Alon Zakai@mozilla.org</h3>
+					</p>
+				</section>
+
+				<section>
+					<h2>Unreal Engine</h2>
+					<div>
+						<img height="500px" class="noshadow" src="img/unreal.png" />
+						<p>
+							unrealengine.com/html5
+						</p>
+					</div>
+				</section>
+
+				<section>
+					<h1>LLVM</h1>
+					<p>
+						<img height="300px" class="noshadow" src="img/LLVM_Logo.svg" />
+						<h3>low level virtual machine</h3>
+					</p>
+				</section>
+
+				<section>
+					<h1>LLVM</h1>
+					<p>
+						<img height="300px" class="noshadow" src="img/llvm-architecture.svg" />
+					</p>
+				</section>
+
+				<section>
+					<h2>Using Emscripten</h2>
+					<p>
+						<img height="300px" class="noshadow" src="img/emscripten-architecture.svg" />
+					</p>
+				</section>
+
+				<section>
+					<h2>Getting Emscripten</h2>
+					<div>
+						<pre><code class="bash" contenteditable="">
+						git clone https://github.com/kripken/emscripten.git
+						git checkout incoming
+						</code></pre>
+					</div>
+				</section>
+
+				<section>
+					<h2>Using Emscripten</h2>
+					<div>
+						<pre><code class="c" contenteditable="">
+						int main() {
+						  char msg[] = "Hello World!";
+						  printf("%s\n", msg);
+						  return 0;
+						}
+						</code></pre>
+					</div>
+					<div class="fragment">
+						<pre><code class="bash" contenteditable="">
+						$ gcc test.c
+						$ ls -l a.out
+						  -rwxr-xr-x 1 manuel manuel 7387 Okt 29 18:02 a.out
+						</code></pre>
+					</div>
+					<div class="fragment">
+						<pre><code class="bash" contenteditable="">
+						$ emcc test.c
+						$ ls -l a.out.js
+						  -rw-r--r-- 1 manuel manuel 173828 Okt 29 18:03 a.out.js
+						$ emcc -O3 test.c
+						  -rw-r--r-- 1 manuel manuel 43465 Okt 29 18:08 a.out.js
+						</code></pre>
+					</div>
+				</section>
+
+				<section>
+					<h2>Using Emscripten</h2>
+					<div>
+						<pre><code class="javascript">
+						STATIC_BASE = 8;
+						STATICTOP = STATIC_BASE + 24;
+						allocate([72,101,108,108,111,32,87,111,114,108,100,33,0,0,0,0,
+						  37,115,10,0,0,0,0,0], "i8", ALLOC_NONE, Runtime.GLOBAL_BASE)
+
+						function _main() {
+						  var label = 0;
+						  var tempVarArgs = 0;
+						  var sp  = STACKTOP; STACKTOP = (STACKTOP + 16)|0;
+						    (assert((STACKTOP|0) < (STACK_MAX|0))|0);
+						  var $1;
+						  var $msg=sp;
+						  $1=0;
+						  var $2=$msg;
+						  assert(13 % 1 === 0);(_memcpy($2, ((8)|0), 13)|0);
+						  var $3=(($msg)|0);
+						  var $4=_printf(((24)|0), (tempVarArgs=STACKTOP,STACKTOP =
+						    (STACKTOP + 8)|0,(assert((STACKTOP|0) < (STACK_MAX|0))|0),
+						    HEAP32[((tempVarArgs)>>2)]=$3,tempVarArgs));
+						    STACKTOP=tempVarArgs;
+						  STACKTOP = sp;
+						  return 0;
+						}
+						</pre></code>
+					</div>
+				</section>
+
+				<section>
+					<h2>Asm.js Benchmark</h2>
+					<p>
+						<img height="300px" class="noshadow" src="img/asm-js-benchmark.png" />
+					</p>
+					<div>
+				</section>
+
+				<section>
+					<h2>Compiling Programms</h2>
+					<div>
+					<p>
+						The native way
+						<pre><code class="bash" contenteditable="">
+						$ ./configure
+						$ make
+						$ make install
+						</code></pre>
+					</p>
+					</div>
+
+					<div class="fragment">
+					<p>
+						The Emscripten way
+						<pre><code class="bash" contenteditable="">
+						$ emconfigure ./configure
+						$ emmake make
+						</code></pre>
+					</p>
+					</div>
+				</section>
+
+				<section>
+					<h2>Compiling Programms</h2>
+					<div>
+					<ul>
+						<li>Compile it to native target</li>
+						<li class="fragment">Compile all dependent libraries</li>
+						<li class="fragment">Configure (with as few features as possible)</li>
+						<li class="fragment">Compile it to javascript</li>
+					</ul>
+					</div>
+				</section>
+
+				<section>
+					<h2>The virtual FS</h2>
+					<div>
+						<pre><code class="c" contenteditable="">
+							var home = FS.createFolder('/', 'home', true, false);
+							FS.createFolder(home, 'user', true, true);
+							FS.createDataFile('/', 'text.txt', 'Hello World', true, false);
+							/* FS.createLazyFile('/', 'site.html',
+							     'other/page.htm', true, false); */
+							FS.createDevice('/dev', 'random', function() {
+							  return Math.floor(Math.random() * 256);
+							});
+						</code></pre>
+					</div>
+				</section>
+
+				<section>
+					<h2>Common Pitfalls</h2>
+					<div>
+					<ul>
+						<li>Calling compiled code during compilation</li>
+						<li class="fragment">Unsupported C/C++ API call
+							<ul>
+								<li><code>./src/library.js</code></li>
+								<li><code>./tests/runner.py</code></li>
+							</ul>
+						</li>
+						<li class="fragment">Use <code>EMCC_DEBUG=2 emmake make</code></li>
+					</ul>
+					</div>
+				</section>
+
+				<section>
+					<h2>fork();</h2>
+					<div>
+					<ul>
+						<li>Run compiled script in WebWorker</li>
+						<li>Use message passing to get status/results</li>
+						<li><code>FS.createLazyFile()</code> uses sync XMLHttpRequest<br/>
+							which is disabled for Firefox and Chromium<br />
+							<strong class="fragment">but not for WebWorkers!</strong></li>
+					</ul>
+					</div>
+				</section>
+
+				<section>
+					<h2>Unhosted.org</h2>
+					<div>
+						<img height="300px" class="noshadow" src="img/unhosted.png" />
+					</div>
+				</section>
+
+				<section>
+					<h2>Unhosted.org</h2>
+					<div>
+						<p>
+							Web 2.0
+						</p>
+						<img width="800px" class="noshadow" src="img/unhosted_web20.png" />
+					</div>
+					<div class="fragment">
+						<p>
+							Unhosted
+						</p>
+						<img width="600px" class="noshadow" src="img/unhosted_arch.png" />
+					</div>
+				</section>
+
+				<section>
+					<h2>Demo Time</h2>
+					<ul>
+						<li><a href="https://github.com/manuels/texlive.js/">texlive.js</a></li>
+						<li class="fragment">
+						  unix-toolbox.js
+						  <ul>
+							 	<li class="fragment"><a href="http://manuels.github.io/unix-toolbox.js-exact-image/demo/">Exact-Image</a></li>
+							 	<li class="fragment"><a href="http://manuels.github.io/unix-toolbox.js-gnupg/">GnuPG</a></li>
+							 	<li class="fragment">file</li>
+							 	<li class="fragment">Poppler</li>
+							 	<li class="fragment">ImageMagick</li>
+							 	<li class="fragment">xz</li>
+						  </ul>
+						</li>
+					</ul>
+				</section>
+			</div>
+		</div>
+
+		<script src="reveal.js/lib/js/head.min.js"></script>
+		<script src="reveal.js/js/reveal.min.js"></script>
+
+		<script>
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'linear',
+				//default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+/*					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }*/
+				]
+			});
+		</script>
+	</body>
+</html>
